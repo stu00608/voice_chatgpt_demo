@@ -6,8 +6,7 @@ from gtts import gTTS
 from collections import deque
 import threading
 import platform
-from pydub import AudioSegment
-from pydub.playback import play as pydub_play
+import pygame
 
 DEBUG = True
 index = None
@@ -81,8 +80,8 @@ def generate_conversation(prompt, openai_api_key):
 
 def play_sound():
     if platform.system() == "Windows" or platform.system() == "Darwin":
-        sound = AudioSegment.from_mp3("tmp.mp3")
-        pydub_play(sound)
+        pygame.mixer.music.load("tmp.mp3")
+        pygame.mixer.music.play()
     else:
         raise NotImplementedError(
             "The play_sound() function is not implemented for this platform.")
@@ -116,6 +115,7 @@ def chat(chat_history, system_message, openai_api_key, user_input):
 conversation = Conversation(limit=5)
 
 if __name__ == "__main__":
+    pygame.mixer.init()
 
     with gr.Blocks() as demo:
         gr.Markdown('Voice ChatGPT')
