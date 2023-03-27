@@ -5,10 +5,10 @@ import gradio as gr
 from gtts import gTTS
 from collections import deque
 import threading
-import platform
 import pygame
+import io
 
-DEBUG = True
+DEBUG = False
 index = None
 
 
@@ -78,13 +78,17 @@ def generate_conversation(prompt, openai_api_key):
     return completions['choices'][0]['message']['content']
 
 
-def play_sound():
-    if platform.system() == "Windows" or platform.system() == "Darwin":
-        pygame.mixer.music.load("tmp.mp3")
-        pygame.mixer.music.play()
-    else:
-        raise NotImplementedError(
-            "The play_sound() function is not implemented for this platform.")
+def play_sound(audio_buffer):
+    # initialize pygame mixer for playing audio
+    pygame.mixer.init()
+    # load the audio data from the buffer into a pygame Sound object
+    sound = pygame.mixer.Sound(audio_buffer)
+    # play the audio
+    sound.play()
+    # wait for the audio to finish playing
+    pygame.time.wait(int(sound.get_length() * 1000))
+    # cleanup pygame mixer
+    pygame.mixer.quit()
 
 
 def chat(chat_history, system_message, openai_api_key, user_input):
@@ -101,10 +105,17 @@ def chat(chat_history, system_message, openai_api_key, user_input):
         response = generate_conversation(prompt, openai_api_key)
 
     tts = gTTS(text=response, lang='zh-TW')
-    tts.save("tmp.mp3")
+    # create a buffer to hold the audio data
+    audio_buffer = io.BytesIO()
+
+    # use the save method to save the audio data to the buffer
+    tts.write_to_fp(audio_buffer)
+
+    # rewind the buffer to the beginning
+    audio_buffer.seek(0)
 
     # Create and start a new thread to play the sound
-    play_sound_thread = threading.Thread(target=play_sound)
+    play_sound_thread = threading.Thread(target=play_sound, args=(audio_buffer,))
     play_sound_thread.start()
 
     conversation.append_response(response)
