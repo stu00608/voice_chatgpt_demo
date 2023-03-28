@@ -2,13 +2,17 @@
 
 ## Installation
 
-1. Install python
-2. Install dependencies
+1. Install Python, make sure you've set the environment varialble properly.
+2. Type `cmd` in the tab of folder explorer (Have to be in this repo) 
+3. Install dependencies
   ```
   pip install -r requirements.txt
   ```
-3. Run script.
+
+## Run
+
+1. Run script.
   ```
   python main.py
   ```
-4. Open the browser and go to the url it shows in terminal.
+2. Open the browser and go to the url it shows in terminal.
